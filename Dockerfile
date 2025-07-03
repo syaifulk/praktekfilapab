@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl libzip-dev zip \
     libpng-dev libjpeg-dev libfreetype6-dev \
@@ -9,17 +9,15 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set workdir ke root project
+# Set workdir ke /var/www
 WORKDIR /var/www
 
-# Salin hanya folder Laravel
-COPY laravel/ ./laravel/
+# Salin folder Laravel ke dalam container
+COPY laravel/ ./
 
-# Masuk ke dalam folder Laravel
-WORKDIR /var/www/laravel
-
-# Install dependency Laravel
-RUN composer install --ignore-platform-reqs
+# Jalankan composer install di dalam /var/www
+RUN composer install --ignore-platform-reqs --no-interaction --prefer-dist
 
 EXPOSE 9000
+
 CMD ["php-fpm"]
