@@ -1,32 +1,25 @@
 FROM php:8.2-fpm
 
-# Install extensions and dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    libicu-dev \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_mysql gd zip
+    git unzip curl libzip-dev zip \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-install pdo pdo_mysql zip gd
 
-# Install Composer (untuk mengelola dependensi PHP)
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working directory
-WORKDIR /var/www/html
+# Set workdir ke root project
+WORKDIR /var/www
 
-# Copy application files
-COPY . .
+# Salin hanya folder Laravel
+COPY laravel/ ./laravel/
 
-# Install dependensi Laravel menggunakan Composer
-# RUN composer install
+# Masuk ke dalam folder Laravel
+WORKDIR /var/www/laravel
 
-# Set permissions
-# RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Install dependency Laravel
+RUN composer install --ignore-platform-reqs
 
 EXPOSE 9000
+CMD ["php-fpm"]
