@@ -14,19 +14,21 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl pdo pdo_mysql gd zip
 
-# Install Composer (untuk mengelola dependensi PHP)
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working directory
+# Set working directory ke folder laravel (bukan root!)
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . .
+# Salin hanya isi folder laravel ke dalam container
+COPY laravel/ ./
 
-# Install dependensi Laravel menggunakan Composer
-# RUN composer install
+# Jalankan composer install
+RUN composer install --ignore-platform-reqs --no-interaction --prefer-dist
 
-# Set permissions
-# RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# (Opsional) Set permission jika perlu
+# RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 9000
+
+CMD ["php-fpm"]
