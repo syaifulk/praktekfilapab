@@ -2,15 +2,7 @@ FROM php:8.2-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    libicu-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip unzip git curl libicu-dev \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl pdo pdo_mysql gd zip
 
@@ -20,11 +12,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy all files to the container
+# Copy all files
 COPY . .
 
-# Jalankan composer install
+# Install Laravel dependencies
 RUN composer install --no-interaction --prefer-dist --ignore-platform-reqs
 
-# Expose port
-EXPOSE 9000
+# Jalankan migrate, storage:link, dan php-fpm
+CMD php artisan migrate --force && php artisan storage:link && php-fpm
