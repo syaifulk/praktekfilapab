@@ -1,27 +1,33 @@
 FROM php:8.2-fpm
 
-# Install system dependencies
+# Install extensions and dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev \
-    libzip-dev zip unzip git curl libicu-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    libicu-dev \
+    libexif-dev \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_mysql gd zip
+    && docker-php-ext-install intl pdo pdo_mysql zip gd exif
 
-# Install Composer
+# Install Composer (untuk mengelola dependensi PHP)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy source code
+# Copy application files
 COPY . .
 
-# Copy entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Install dependensi Laravel menggunakan Composer
+# RUN composer install
 
-# Expose port
+# Set permissions
+# RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 EXPOSE 9000
-
-# Use entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
