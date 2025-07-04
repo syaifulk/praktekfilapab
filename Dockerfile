@@ -1,33 +1,23 @@
+# Laravel base image
 FROM php:8.2-fpm
 
-# Install extensions and dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    libicu-dev \
-    libexif-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip unzip git curl libicu-dev \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_mysql zip gd exif
+    && docker-php-ext-install intl pdo pdo_mysql gd zip
 
-# Install Composer (untuk mengelola dependensi PHP)
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working directory
+# Set workdir
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy seluruh project ke dalam image
 COPY . .
 
-# Install dependensi Laravel menggunakan Composer
-# RUN composer install
-
-# Set permissions
-# RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
+# Expose port
 EXPOSE 9000
+
+# ✅ CMD: install dependency + migrate + storage link + jalankan php-fpm
+CMD bash -c "composer install --no-interaction --prefer-dist --ignore-platform-reqs && php artisan migrate --force && php artisan storage:link && php-fpm"
